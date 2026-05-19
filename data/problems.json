@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Second Highest Salary",
+    "description": "# Problem\nFind second highest salary.",
+    "difficulty": 1200,
+
+    "topics": ["aggregation", "subquery"],
+    "companies": ["Amazon", "Google"],
+
+    "schemaData": "CREATE TABLE Employee (id INT, salary INT); INSERT INTO Employee VALUES (1,100),(2,200);",
+
+    "correctQuery": "SELECT MAX(salary) FROM Employee WHERE salary < (SELECT MAX(salary) FROM Employee);"
+  },
+
+  {
+    "title": "Employees By Department",
+    "description": "# Problem\nFind employees grouped by department.",
+    "difficulty": 1400,
+
+    "topics": ["group-by"],
+    "companies": ["Meta"],
+
+    "schemaData": "CREATE TABLE Employee(id INT, dept TEXT);",
+
+    "correctQuery": "SELECT dept, COUNT(*) FROM Employee GROUP BY dept;"
+  }
+]
