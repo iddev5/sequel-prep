@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Play, History, Clock, Download } from "lucide-react";
 
@@ -52,6 +52,19 @@ function formatTimeAgo(dateInput) {
 export default function Editor() {
   const p = useParams();
   const problemId = p.slug?.[0] ?? null;
+
+  const [problem, setProblem] = useState(null);
+
+  useEffect(() => {
+    async function fetchProblem() {
+      if (problemId == null)
+        return;
+      const res = await fetch(`/api/problems/${problemId}`);
+      const data = await res.json();
+      setProblem(data);
+    }
+    fetchProblem();
+  }, [problemId]);
 
   const [runRequest, setRunRequest] = useState(false);
   const [schema, setSchema] = useState("CREATE TABLE table_name (x INT);\n\nINSERT INTO table_name VALUES (1), (2);");
@@ -184,8 +197,11 @@ export default function Editor() {
           }
           {
             problemId &&
-              <div className="w-full h-[55vh] bg-primary">
-
+              <div className="w-full h-[55vh] bg-primary text-gray-300">
+                {problem && <div className="px-8 py-4">
+                  <p className="text-2xl">{problem.title}</p>
+                  <p>{problem.description}</p>
+                </div>}
               </div>
           }
         </div>
