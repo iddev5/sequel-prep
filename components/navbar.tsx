@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const links = [
   { href: '/dashboard', name: 'Problems' },
-  { href: '/', name: 'Editor' },
+  { href: '/editor', name: 'Editor' },
 ]
 
 export default function Navbar() {
