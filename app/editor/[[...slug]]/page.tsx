@@ -1,5 +1,6 @@
 "use client";
 import { useState, useCallback } from "react";
+import { useParams } from "next/navigation";
 import { Play, History, Clock, Download } from "lucide-react";
 
 import CodeMirror from '@uiw/react-codemirror';
@@ -47,7 +48,11 @@ function formatTimeAgo(dateInput) {
   return date.toLocaleString();
 }
 
+// export default function Editor() {
 export default function Editor() {
+  const p = useParams();
+  const problemId = p.slug?.[0] ?? null;
+
   const [runRequest, setRunRequest] = useState(false);
   const [schema, setSchema] = useState("CREATE TABLE table_name (x INT);\n\nINSERT INTO table_name VALUES (1), (2);");
   const [query, setQuery] = useState("SELECT * FROM table_name");
@@ -141,14 +146,20 @@ export default function Editor() {
     <div>
       <Navbar />
       <div className="flex w-full border-b border-[#30363D]">
+
         <div className="w-[50%] border-r border-[#30363D]" >
+
           <div className="flex justify-between h-10 items-center px-4 border-b border-[#30363D] bg-[#181c22]">
             <div className="flex items-center gap-4">
-              <p className="uppercase text-outline font-inter text-[11px] text-[#948ea1]">Database Schema</p>
-              <select className="bg-[#161B22] text-white outline-none border border-[#30363D] text-xs px-2 py-1 rounded appearance-none" id="schema" name="schema" onChange={onSchemaSelect}>
-                <option value="schema-blank">Blank</option>
-                <option value="schema-users">Users</option>
-              </select>
+              <p className="uppercase text-outline font-inter text-[11px] text-[#948ea1]">
+                {problemId == null ? "Database Schema" : "Problem Statement"}
+              </p>
+              {problemId == null &&
+                <select className="bg-[#161B22] text-white outline-none border border-[#30363D] text-xs px-2 py-1 rounded appearance-none" id="schema" name="schema" onChange={onSchemaSelect}>
+                  <option value="schema-blank">Blank</option>
+                  <option value="schema-users">Users</option>
+                </select>
+              }
             </div>
 
             <div>
@@ -168,8 +179,15 @@ export default function Editor() {
               </select> */}
             </div>
           </div>
+          { problemId == null &&
+            <CodeMirror value={schema} theme={tokyoNight}  height="55vh" extensions={[sql()]} onChange={onSchemaChange} />
+          }
+          {
+            problemId &&
+              <div className="w-full h-[55vh] bg-primary">
 
-          <CodeMirror value={schema} theme={tokyoNight}  height="55vh" extensions={[sql()]} onChange={onSchemaChange} />
+              </div>
+          }
         </div>
         <div className="w-[50%] relative">
           <div className="flex justify-between h-10 items-center px-4 border-b border-[#30363D] bg-[#181c22]">
@@ -197,7 +215,7 @@ export default function Editor() {
           </button>}
         </div>
       </div>
-      <div className="w-full h-[35vh] overflow-auto bg-primary">
+      <div className="w-full h-[35vh] overflow-auto bg-primary z-[10]">
         <div className="h-10 flex items-center justify-between px-4 border-b border-[#30363D] bg-[#181c22]">
           <div className="flex gap-4">
             <p className="uppercase text-outline font-inter text-[11px] text-[#948ea1]">Results</p>

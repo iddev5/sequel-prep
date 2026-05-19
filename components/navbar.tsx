@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="flex gap-4">
         {
           links.map(link =>
-            <Link href={link.href} className="group hover:text-indigo-400 transition-all">
+            <Link key={link.href} href={link.href} className="group hover:text-indigo-400 transition-all">
               {link.name}
               <div className="w-[0px] h-[2px] rounded-lg bg-indigo-400 opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300">
 
