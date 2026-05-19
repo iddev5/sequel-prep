@@ -22,6 +22,84 @@ model Problem {
   updatedAt DateTime @updatedAt
 }
 
+// Discussion system
+model Post {
+  id String @id @default(cuid())
+
+  title String
+  description String @db.Text
+
+  tags String[]
+
+  authorId String
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  comments Comment[]
+
+  votes PostVote[]
+
+  upvotes Int @default(0)
+  downvotes Int @default(0)
+
+  views Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model Comment {
+  id String @id @default(cuid())
+
+  text String
+
+  authorId String
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  postId String
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  votes CommentVote[]
+
+  upvotes Int @default(0)
+  downvotes Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+}
+
+model PostVote {
+  userId String
+  postId String
+
+  value Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+}
+
+model CommentVote {
+  userId String
+  commentId String
+
+  value Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, commentId])
+}
+
 // Auth.js specific
 model User {
   id            String          @id @default(cuid())
@@ -33,6 +111,12 @@ model User {
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
+
+  // Non-Auth.js, specific to Discussion system
+  posts         Post[]
+  comments      Comment[]
+  postVotes     PostVote[]
+  commentVotes  CommentVote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
