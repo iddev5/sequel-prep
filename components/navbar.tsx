@@ -4,6 +4,7 @@ import Link from "next/link";
 
 const links = [
   { href: '/dashboard', name: 'Problems' },
+  { href: '/discuss', name: 'Discuss' },
   { href: '/editor', name: 'Editor' },
 ]
 
