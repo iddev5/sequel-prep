@@ -1,3 +1,5 @@
+// Extra installs: tsx dotenv
+
 import "dotenv/config";
 
 import { PrismaPg } from "@prisma/adapter-pg";
