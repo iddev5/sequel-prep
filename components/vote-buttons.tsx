@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ArrowBigUp, ArrowBigDown, Eye } from "lucide-react";
 
 export default function VoteButtons({ postId, upvotes, downvotes }) {
+  const router = useRouter();
+
   async function vote(value) {
     try {
       await fetch("/api/posts/vote", {
@@ -12,6 +15,8 @@ export default function VoteButtons({ postId, upvotes, downvotes }) {
         },
         body: JSON.stringify({ postId, value }),
       });
+
+      router.refresh();
     } catch (err) {
       console.log(err);
     }
