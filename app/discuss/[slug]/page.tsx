@@ -5,6 +5,13 @@ export default async function Post({ params }) {
   const { slug } = await params;
   const postId = slug;
 
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      views: { increment: 1 },
+    }
+  });
+
   const post = await prisma.post.findUnique({
     select: {
       id: true,
