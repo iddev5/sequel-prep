@@ -1,4 +1,5 @@
 import Navbar from "@/components/navbar";
+import ActionButton from "@/components/action-button";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
@@ -22,24 +23,28 @@ export default async function Discuss() {
         },
       },
     },
-  })
+  });
 
   return <div className="bg-primary w-full h-screen text-white">
     <Navbar />
     <div className="w-full flex justify-center">
+
       <div className="w-[45vw] p-8">
-      {
-        posts.map(post =>
-          <Link href={`/discuss/${post.id}`} className="mb-8 p-2 ">
-            <div className="flex text-sm gap-3">
-              <p className="text-indigo-600">{post.author.name}</p>
-              <p className="text-gray-500">{formatTimeAgo(post.updatedAt)}</p>
-            </div>
-            <h1 className="text-2xl">{post.title}</h1>
-            <p className="text-gray-300 border-b-2 pb-2 border-gray-600/50 ">{post.description}</p>
-          </Link>
-        )
-      }
+        <div className="flex justify-end">
+          <ActionButton href="/discuss/create" text="New"></ActionButton>
+        </div>
+        {
+          posts.map(post =>
+            <Link href={`/discuss/${post.id}`} className="mb-8 p-2 ">
+              <div className="flex text-sm gap-3">
+                <p className="text-indigo-600">{post.author.name}</p>
+                <p className="text-gray-500">{formatTimeAgo(post.updatedAt)}</p>
+              </div>
+              <h1 className="text-2xl">{post.title}</h1>
+              <p className="text-gray-300 border-b-2 pb-2 border-gray-600/50 ">{post.description}</p>
+            </Link>
+          )
+        }
       </div>
     </div>
   </div>
