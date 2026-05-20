@@ -1,5 +1,5 @@
 import Navbar from "@/components/navbar";
-import Link from "next/link";
+import ActionButton from "@/components/action-button";
 import { Play } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
@@ -51,10 +51,9 @@ export default async function Dashboard() {
                 <div className={`px-3 py-1 ${difficultyColor(Number(p.difficulty))} rounded-3xl`}>
                   {p.difficulty}
                 </div>
-                <Link href={`/editor/${p.id}`} className="bg-indigo-400 p-1 px-3 rounded-lg hover:bg-indigo-500 flex justify-center items-center gap-1">
-                  Solve
+                <ActionButton href={`/editor/${p.id}`} text="Solve">
                   <Play size={14} fill="white" />
-                </Link>
+                </ActionButton>
               </div>
             </div>
           )
