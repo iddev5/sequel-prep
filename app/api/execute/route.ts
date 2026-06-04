@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import Database from "better-sqlite3";
+import Database, { SqliteError } from "better-sqlite3";
 
 async function executeSqlite(schema: string, query: string) {
   const db = new Database(":memory:");
@@ -14,7 +14,7 @@ async function executeSqlite(schema: string, query: string) {
 
     db.pragma("trusted_schema = OFF");
     db.pragma("foreign_keys = ON");
-    db.loadExtension = null;
+    (db as any).loadExtension = null;
 
     const runSchema = db.transaction(() =>
       db.exec(schema)
@@ -24,7 +24,7 @@ async function executeSqlite(schema: string, query: string) {
 
     const stmt = db.prepare(query);
     const rows = stmt.all().slice(0, 500);
-    const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+    const columns = rows.length > 0 ? Object.keys(rows[0] as object) : [];
 
     return {
       columns,
@@ -35,7 +35,7 @@ async function executeSqlite(schema: string, query: string) {
     return {
       columns: [],
       rows: [],
-      error: err.message,
+      error: (err as Error).message,
       time: Date.now() - startTime,
     };
   } finally {
@@ -45,7 +45,7 @@ async function executeSqlite(schema: string, query: string) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { sql, schema, query } = body as { sql: string; query: string };
+  const { sql, schema, query } = body as { sql: string; schema: string; query: string };
 
   const result = await executeSqlite(schema, query);
 

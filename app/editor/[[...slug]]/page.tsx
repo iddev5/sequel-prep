@@ -55,17 +55,17 @@ export default function Editor() {
 
   const [history, setHistory] = useState([]);
 
-  const onSchemaSelect = (e) => {
+  const onSchemaSelect = (e: any) => {
     const schema_name = e.target.value;
     setSchema(default_schemas[schema_name].trim() ?? '')
   };
 
-  const onSchemaHistory = (e) => {
+  const onSchemaHistory = (e: any) => {
     const schema_idx = e.target.value;
     setSchema(history[schema_idx].schema);
   }
 
-  const onQueryHistory = (e) => {
+  const onQueryHistory = (e: any) => {
     const query_idx = e.target.value;
     setQuery(history[query_idx].query);
   }

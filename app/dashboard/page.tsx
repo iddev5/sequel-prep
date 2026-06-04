@@ -13,7 +13,7 @@ export default async function Dashboard() {
     }
   });
 
-  function difficultyColor(d) {
+  function difficultyColor(d: number) {
     if (d >= 2000) return 'bg-red-700';
     else if (d >= 1000) return 'bg-yellow-600';
     return 'bg-green-700';
