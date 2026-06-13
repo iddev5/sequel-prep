@@ -1,4 +1,6 @@
 import Navbar from "@/components/navbar";
+import PostCard from "@/components/post-card";
+import ActionButton from "@/components/action-button";
 import { prisma } from "@/lib/prisma";
 
 export default async function Post({ params }: any) {
@@ -13,10 +15,18 @@ export default async function Post({ params }: any) {
   });
 
   const post = await prisma.post.findUnique({
-    select: {
-      id: true,
-      title: true,
-      description: true,
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
     },
     where: {
       id: postId
@@ -27,8 +37,10 @@ export default async function Post({ params }: any) {
     <Navbar />
     <div className="flex w-full justify-center">
       <div className="w-[45vw] p-8">
-        <h1 className="text-white text-2xl">{post?.title}</h1>
-        <p className="text-white">{post?.description}</p>
+        <div className="flex justify-start pb-4">
+          <ActionButton href="/discuss" text="Back" />
+        </div>
+        <PostCard post={post} />
       </div>
     </div>
   </div>
