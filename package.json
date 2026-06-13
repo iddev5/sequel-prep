@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "prisma generate",
     "type-check": "tsc",
     "load-problems": "tsx scripts/load-problems.ts"
   },
