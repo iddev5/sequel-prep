@@ -11,28 +11,10 @@ import Navbar from "@/components/navbar";
 
 import { formatTimeAgo } from "@/lib/time";
 
-const default_schemas = {
-  'schema-blank': '-- enter code here',
-
-  'schema-users': `
-CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  age INTEGER
-);
-
-INSERT INTO users VALUES
-  (1, 'Alice Johnson', 'alice@example.com', 28),
-  (2, 'Bob Smith',    'bob@example.com',   34),
-  (3, 'Carol White',  'carol@example.com', 25);
-  `,
-};
-
 // export default function Editor() {
 export default function Editor() {
   const p = useParams();
-  const problemId = p.slug?.[0] ?? null;
+  const problemId = p.slug;
 
   const [problem, setProblem] = useState(null);
 
@@ -48,31 +30,16 @@ export default function Editor() {
   }, [problemId]);
 
   const [runRequest, setRunRequest] = useState(false);
-  const [schema, setSchema] = useState("CREATE TABLE table_name (x INT);\n\nINSERT INTO table_name VALUES (1), (2);");
-  const [query, setQuery] = useState("SELECT * FROM table_name");
+  const [query, setQuery] = useState("--- enter your query");
 
   const [result, setResult] = useState(null);
 
   const [history, setHistory] = useState([]);
 
-  const onSchemaSelect = (e: any) => {
-    const schema_name = e.target.value;
-    setSchema(default_schemas[schema_name].trim() ?? '')
-  };
-
-  const onSchemaHistory = (e: any) => {
-    const schema_idx = e.target.value;
-    setSchema(history[schema_idx].schema);
-  }
-
   const onQueryHistory = (e: any) => {
     const query_idx = e.target.value;
     setQuery(history[query_idx].query);
   }
-
-  const onSchemaChange = useCallback((val, viewUpdate) => {
-    setSchema(val);
-  }, []);
 
   const onQueryChange = useCallback((val, viewUpdate) => {
     setQuery(val);
@@ -82,24 +49,26 @@ export default function Editor() {
     try {
       setRunRequest(true);
 
-      const res = await fetch('/api/execute', {
+      console.log(problem)
+
+      const res = await fetch('/api/execute_problem', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sql: 'sqlite', schema: schema, query: query })
+        body: JSON.stringify({ sql: 'sqlite', problemId: problemId, query: query })
       });
 
       const data = await res.json();
-      {
-        const last = history[0] ?? { schema: '', query: '' };
-        const entry = {
-          schema: schema === last.schema ? null : schema,
-          query: query === last.query ? null : query,
-          timestamp: new Date()
-        };
-
-        const entries = [...history, entry];
-        setHistory(entries.toSorted((a, b) => b.timestamp - a.timestamp));
-      }
+      // {
+      //   const last = history[0] ?? { schema: '', query: '' };
+      //   const entry = {
+      //     schema: schema === last.schema ? null : schema,
+      //     query: query === last.query ? null : query,
+      //     timestamp: new Date()
+      //   };
+      //
+      //   const entries = [...history, entry];
+      //   setHistory(entries.toSorted((a, b) => b.timestamp - a.timestamp));
+      // }
 
       if (data.error !== undefined)
         console.error(data.error);
@@ -146,14 +115,8 @@ export default function Editor() {
           <div className="flex justify-between h-10 items-center px-4 border-b border-[#30363D] bg-[#181c22]">
             <div className="flex items-center gap-4">
               <p className="uppercase text-outline font-inter text-[11px] text-[#948ea1]">
-                {problemId == null ? "Database Schema" : "Problem Statement"}
+                Problem Statement
               </p>
-              {problemId == null &&
-                <select className="bg-[#161B22] text-white outline-none border border-[#30363D] text-xs px-2 py-1 rounded appearance-none" id="schema" name="schema" onChange={onSchemaSelect}>
-                  <option value="schema-blank">Blank</option>
-                  <option value="schema-users">Users</option>
-                </select>
-              }
             </div>
 
             <div>
@@ -173,18 +136,12 @@ export default function Editor() {
               </select> */}
             </div>
           </div>
-          { problemId == null &&
-            <CodeMirror value={schema} theme={tokyoNight}  height="55vh" extensions={[sql()]} onChange={onSchemaChange} />
-          }
-          {
-            problemId &&
-              <div className="w-full h-[55vh] bg-primary text-gray-300">
-                {problem && <div className="px-8 py-4">
-                  <p className="text-2xl">{problem.title}</p>
-                  <p>{problem.description}</p>
-                </div>}
-              </div>
-          }
+            <div className="w-full h-[55vh] bg-primary text-gray-300">
+              {problem && <div className="px-8 py-4">
+                <p className="text-2xl">{problem.title}</p>
+                <p>{problem.description}</p>
+              </div>}
+            </div>
         </div>
         <div className="w-[50%] relative">
           <div className="flex justify-between h-10 items-center px-4 border-b border-[#30363D] bg-[#181c22]">
@@ -217,13 +174,19 @@ export default function Editor() {
           <div className="flex gap-4">
             <p className="uppercase text-outline font-inter text-[11px] text-[#948ea1]">Results</p>
             {result && result.error === undefined && <>
-              <p className="font-inter text-[11px] text-[#948ea1]">{result.rows.length} rows returned</p>
-              <p className="font-inter text-[11px] text-[#948ea1]">Executed in {result.time / 1000} seconds</p>
+              {
+                result.correct && <p className='font-inter text-[12px] uppercase text-green-500'>Test case passed</p>
+              }
+              {
+                !result.correct && <p className='font-inter text-[12px] uppercase text-red-400'>Test case failed</p>
+              }
+              {/* <p className="font-inter text-[11px] text-[#948ea1]">{result.result.rows.length} rows returned</p>
+              <p className="font-inter text-[11px] text-[#948ea1]">Executed in {result.result.time / 1000} seconds</p> */}
             </>}
           </div>
-          {result && result.error === undefined && <button onClick={downloadResult} className="hover:scale-105 hover:bg-white/10 p-1 rounded-lg">
+          {/* {result && result.error === undefined && <button onClick={downloadResult} className="hover:scale-105 hover:bg-white/10 p-1 rounded-lg">
             <Download size={18} className="text-[#948ea1]" />
-          </button>}
+          </button>} */}
         </div>
         {
           runRequest &&
@@ -239,7 +202,7 @@ export default function Editor() {
           <table className="w-full text-left font-inter text-[13px]">
             <thead>
               <tr>
-                {result.columns.map(col => (
+                {result.result.columns.map(col => (
                   <th key={col} className="bg-[#262a31] text-left text-sm sticky top-0 p-3 border-b border-[#30363D] border-r border-[#21262D] text-[#cac3d8] text-[11px]">
                     {col.toUpperCase()}
                   </th>
@@ -247,9 +210,9 @@ export default function Editor() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#21262D]">
-              {result.rows.map((row, i) => (
+              {result.result.rows.map((row, i) => (
                 <tr key={i} className="bg-[#10141a] hover:bg-[#161B22] transition-colors">
-                  {result.columns.map(col => (
+                  {result.result.columns.map(col => (
                     <td key={col}
                       className={`p-3 border-r border-[#21262D]
                           ${
