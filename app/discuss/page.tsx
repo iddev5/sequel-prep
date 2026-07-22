@@ -29,7 +29,7 @@ export default async function Discuss() {
 
       <div className="w-[45vw] p-8">
         <div className="flex justify-end">
-          <ActionButton href="/discuss/create" text="New"></ActionButton>
+          <ActionButton href="/discuss/new" text="New"></ActionButton>
         </div>
         {
           posts.map((post, i) =>
